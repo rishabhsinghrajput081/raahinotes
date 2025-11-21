@@ -2,6 +2,13 @@ import { connectDB } from "@/lib/mongodb";
 import Story from "@/models/Story";
 import { NextResponse } from "next/server";
 
+// Type for route points to remove implicit "any"
+type RoutePoint = {
+  lat: number;
+  lng: number;
+  label?: string;
+};
+
 export async function GET() {
   try {
     await connectDB();
@@ -21,7 +28,7 @@ export async function POST(req: Request) {
     await connectDB();
     const data = await req.json();
 
-    // ✅ Validate required fields
+    // Required field validation
     if (!data.title || !data.description) {
       return NextResponse.json(
         { error: "Title and description are required" },
@@ -29,35 +36,37 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ Validate route points (if any)
-    let routePoints = [];
+    // Validate and clean routePoints
+    let routePoints: RoutePoint[] = [];
+
     if (Array.isArray(data.routePoints)) {
       routePoints = data.routePoints
-        .filter(
-          (point) =>
-            point.lat &&
-            point.lng &&
+        .filter((point: RoutePoint) => {
+          return (
+            point &&
             typeof point.lat === "number" &&
             typeof point.lng === "number"
-        )
-        .map((point) => ({
+          );
+        })
+        .map((point: RoutePoint) => ({
           lat: point.lat,
           lng: point.lng,
           label: point.label || "",
         }));
     }
 
-    // ✅ Create new story with all fields
+    // Create story document
     const story = new Story({
       title: data.title,
       quote: data.quote || "",
       description: data.description,
       mapImage: data.mapImage || "",
       photoImage: data.photoImage || "",
-      routePoints, // ✅ Add map route data here
+      routePoints,
     });
 
     await story.save();
+
     return NextResponse.json(story, { status: 201 });
   } catch (error) {
     console.error("Error adding story:", error);
