@@ -2,17 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Blog from "@/models/Blog";
 
-// ✅ DELETE blog by ID
+// DELETE blog by ID
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   await connectDB();
 
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
 
     await Blog.findByIdAndDelete(id);
+
     return NextResponse.json({ message: "Blog deleted successfully" });
   } catch (error) {
     console.error("Error deleting blog:", error);
@@ -23,15 +24,15 @@ export async function DELETE(
   }
 }
 
-// ✅ UPDATE blog by ID (PUT)
+// UPDATE blog by ID (PUT)
 export async function PUT(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   await connectDB();
 
   try {
-    const { id } = context.params;
+    const { id } = await context.params;
     const data = await req.json();
 
     const updatedBlog = await Blog.findByIdAndUpdate(id, data, { new: true });
