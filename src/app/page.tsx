@@ -23,7 +23,10 @@ interface Story {
   photoImage?: string;
 }
 
-function safeImage(url?: string, fallback = "https://source.unsplash.com/800x600/?travel") {
+function safeImage(
+  url?: string,
+  fallback = "https://source.unsplash.com/800x600/?travel"
+) {
   try {
     if (url && (url.startsWith("http") || url.startsWith("/"))) return url;
   } catch {}
@@ -60,14 +63,17 @@ export default function HomePage() {
         >
           Explore Journeys. Feel the Stories.
         </motion.h1>
+
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}
           className="text-gray-600 max-w-2xl mx-auto text-lg"
         >
-          Discover tales of mountains, beaches, and hidden adventures shared by travellers around the world.
+          Discover tales of mountains, beaches, and hidden adventures shared
+          by travellers around the world.
         </motion.p>
+
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -111,14 +117,19 @@ export default function HomePage() {
             transition={{ duration: 0.7 }}
             className="flex-1"
           >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">{stories[0].title}</h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              {stories[0].title}
+            </h2>
+
             <blockquote className="italic text-green-700 border-l-4 border-green-500 pl-4 mb-4">
               “{stories[0].quote || "Adventure begins where comfort ends."}”
             </blockquote>
+
             <div
               className="text-gray-700 leading-relaxed prose max-w-none line-clamp-6 mb-4"
               dangerouslySetInnerHTML={{ __html: stories[0].description }}
             />
+
             <Link
               href="/stories"
               className="inline-block text-green-600 font-medium hover:text-green-800"
@@ -135,6 +146,7 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold text-gray-900 mb-10 text-center">
             Latest Adventure Blogs
           </h2>
+
           <div className="grid md:grid-cols-3 sm:grid-cols-2 gap-8">
             {blogs.map((blog, index) => (
               <motion.div
@@ -154,13 +166,16 @@ export default function HomePage() {
                   decoding="async"
                   className="object-cover w-full h-64"
                 />
+
                 <div className="p-5">
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     {blog.title}
                   </h3>
+
                   <p className="text-sm text-gray-600 line-clamp-3 mb-3">
                     {blog.category}
                   </p>
+
                   <Link
                     href={`/blog/${blog.slug}`}
                     className="text-green-600 font-medium hover:text-green-800"
@@ -174,12 +189,13 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* --- MIXED MOSAIC SECTION --- */}
+      {/* --- MIXED MOSAIC SECTION (FIXED VERSION BELOW) --- */}
       {(stories.length > 1 || blogs.length > 1) && (
         <section className="max-w-7xl mx-auto px-6 py-24">
           <h2 className="text-3xl font-bold text-center mb-12 text-gray-900">
             From the Trails & Beaches
           </h2>
+
           <div className="grid md:grid-cols-2 gap-10">
             {[...stories.slice(1), ...blogs.slice(0, 1)].map((item, index) => (
               <motion.div
@@ -192,9 +208,14 @@ export default function HomePage() {
               >
                 <Image
                   src={
-                    "photoImage" in item
-                      ? safeImage(item.photoImage)
-                      : safeImage(item.image)
+                    // Story
+                    (item as Story).photoImage
+                      ? safeImage((item as Story).photoImage)
+                      : // Blog
+                        (item as Blog).image
+                      ? safeImage((item as Blog).image)
+                      : // Fallback
+                        "https://source.unsplash.com/800x600/?adventure"
                   }
                   alt={item.title}
                   width={800}
@@ -203,13 +224,16 @@ export default function HomePage() {
                   decoding="async"
                   className="object-cover w-full h-80"
                 />
+
                 <div className="p-6 bg-white">
                   <h3 className="text-2xl font-semibold text-gray-900 mb-2">
                     {item.title}
                   </h3>
+
                   {"quote" in item && (
                     <p className="italic text-green-700 mb-3">“{item.quote}”</p>
                   )}
+
                   <Link
                     href={"slug" in item ? `/blog/${item.slug}` : "/stories"}
                     className="text-green-600 font-medium hover:text-green-800"
