@@ -1,16 +1,18 @@
+import { NextRequest, NextResponse } from "next/server";
 import { connectDB } from "@/lib/mongodb";
 import Blog from "@/models/Blog";
-import { NextResponse } from "next/server";
 
 // ✅ DELETE blog by ID
 export async function DELETE(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   await connectDB();
 
   try {
-    await Blog.findByIdAndDelete(params.id);
+    const { id } = context.params;
+
+    await Blog.findByIdAndDelete(id);
     return NextResponse.json({ message: "Blog deleted successfully" });
   } catch (error) {
     console.error("Error deleting blog:", error);
@@ -21,19 +23,18 @@ export async function DELETE(
   }
 }
 
-// ✅ UPDATE blog by ID (Edit)
+// ✅ UPDATE blog by ID (PUT)
 export async function PUT(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  context: { params: { id: string } }
 ) {
   await connectDB();
 
   try {
+    const { id } = context.params;
     const data = await req.json();
 
-    const updatedBlog = await Blog.findByIdAndUpdate(params.id, data, {
-      new: true, // returns the updated document
-    });
+    const updatedBlog = await Blog.findByIdAndUpdate(id, data, { new: true });
 
     if (!updatedBlog) {
       return NextResponse.json(
